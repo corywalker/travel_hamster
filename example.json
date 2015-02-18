@@ -1,7 +1,12 @@
 {
 	"home": "Knoxville",
 	"to": [
-		"New-Orleans"
+		"New-Orleans",
+		"Denver",
+		"Miami",
+		"New-York",
+		"Seattle",
+		"Chicago"
 	],
 	"leave_date": "2015-3-14",
 	"return_date": "2015-3-22"

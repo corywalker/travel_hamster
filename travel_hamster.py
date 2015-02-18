@@ -1,8 +1,11 @@
 import sys
 import csv
 import json
+from datetime import datetime
 import itertools
 import urllib2
+import urllib
+import httplib
 
 from bs4 import BeautifulSoup
 
@@ -51,8 +54,35 @@ class Hamster(object):
             options.append(data)
         return options
 
+    def get_numbeo_info(self, dest):
+        mapping = {
+                'New-Orleans': ('New Orleans, LA', 'United States')
+            }
+        f = {}
+        f['city'], f['country'] = mapping[dest]
+        uri = 'http://www.numbeo.com/hotel-prices/city_result.jsp?%s' % urllib.urlencode(f)
+
+        httplib.HTTPConnection._http_vsn = 10
+        httplib.HTTPConnection._http_vsn_str = 'HTTP/1.0'
+        data = urllib2.urlopen(uri).read()
+        httplib.HTTPConnection._http_vsn = 11
+        httplib.HTTPConnection._http_vsn_str = 'HTTP/1.1'
+
+        info = {'numbeo_source': uri}
+        for line in data.splitlines():
+            if 'Backpacker estimated cost' in line:
+                for part in line.split('<p/>')[1:]:
+                    part = part.replace('&nbsp;&#36;', '')
+                    cost = part.split(' = ')[-1]
+                    if 'Backpacker' in part:
+                        info['backpacker_cost_per_day'] = cost
+                    if 'Business or' in part:
+                        info['business_cost_per_day'] = cost
+        return info
+
     def gen_options(self):
         for dest in plan['to']:
+            numbeo = self.get_numbeo_info(dest)
             currplan = dict(plan)
             currplan['from'] = plan['home']
             currplan['to'] = dest
@@ -60,11 +90,15 @@ class Hamster(object):
             for opt in r2r_options:
                 rowdata = dict(currplan)
                 rowdata.update(opt)
+                rowdata.update(numbeo)
                 rowdata['has_car'] = rowdata['modes'].endswith('car')
+                leaved = datetime.strptime(rowdata['leave_date'], '%Y-%m-%d').date()
+                returnd = datetime.strptime(rowdata['return_date'], '%Y-%m-%d').date()
+                rowdata['duration'] = (returnd - leaved).total_seconds()/(60*60*24)
                 yield rowdata
 
     def print_options(self):
-        cols = ['to', 'mode_desc', 'modes', 'travel_hours', 'travel_price_min', 'travel_price_max', 'leave_date', 'return_date', 'has_car', 'source']
+        cols = ['to', 'mode_desc', 'modes', 'travel_hours', 'travel_price_min', 'travel_price_max', 'leave_date', 'return_date', 'duration', 'has_car', 'source', 'backpacker_cost_per_day', 'business_cost_per_day', 'numbeo_source']
         writer = csv.DictWriter(sys.stdout, cols, extrasaction='ignore')
         writer.writeheader()
 
