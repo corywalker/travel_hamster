@@ -26,3 +26,5 @@ Travel_hamster turns this:
 ```
 
 into this:
+
+![ScreenShot](https://raw.githubusercontent.com/cmwslw/travel_hamster/master/output_example.png)
