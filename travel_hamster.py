@@ -1,5 +1,6 @@
 import sys
 import json
+import itertools
 import urllib2
 
 from bs4 import BeautifulSoup
@@ -17,6 +18,7 @@ class Hamster(object):
         for i in itins:
             dl = i.find('div', {'class': 'itinerary-short'}).find('dl')
             data = {}
+            data['source'] = uri
             for dd in dl.findAll('dd'):
                 cl = dd.get('class')[0]
                 if cl == 'itinerary-title':
@@ -33,14 +35,25 @@ class Hamster(object):
                         mode = img.get('class')[0].replace('icon-', '').replace('-sprite', '')
                         modes.append(mode)
                     data['modes'] = ', '.join(modes)
-            print data
             options.append(data)
+        return options
 
     def print_options(self):
         for dest in plan['to']:
-            currplan = plan
-            currplan['to'] = dest
-            r2r_data = self.parse_r2r(currplan)
+            leaveplan = dict(plan)
+            returnplan = dict(plan)
+            leaveplan['from'] = leaveplan['home']
+            leaveplan['to'] = dest
+            returnplan['from'] = dest
+            returnplan['to'] = returnplan['home']
+            leave_r2r_options = self.parse_r2r(leaveplan)
+            return_r2r_options = self.parse_r2r(returnplan)
+            for combo in itertools.product(leave_r2r_options, return_r2r_options):
+                rowdata = dict(leaveplan)
+                for prefix, opt in [('leave_', combo[0]), ('return_', combo[1])]:
+                    for key, value in opt.iteritems():
+                        rowdata[prefix+key] = value
+                print rowdata
             #print currplan
 
 
