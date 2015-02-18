@@ -64,9 +64,15 @@ class Hamster(object):
                 'New-York': ('New York, NY', 'United States'),
                 'Seattle': ('Seattle, WA', 'United States'),
                 'Chicago': ('Chicago, IL', 'United States'),
+                'San-Diego': ('San Diego, CA', 'United States'),
+                'Phoenix': ('Phoenix, AZ', 'United States'),
+                'Las-Vegas': ('Las Vegas, NV', 'United States'),
             }
         f = {}
-        f['city'], f['country'] = mapping[dest]
+        try:
+            f['city'], f['country'] = mapping[dest]
+        except KeyError:
+            return {}
         uri = 'http://www.numbeo.com/hotel-prices/city_result.jsp?%s' % urllib.urlencode(f)
 
         httplib.HTTPConnection._http_vsn = 10

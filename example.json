@@ -6,7 +6,10 @@
 		"Miami",
 		"New-York",
 		"Seattle",
-		"Chicago"
+		"Chicago",
+		"San-Diego",
+		"Phoenix",
+		"Las-Vegas"
 	],
 	"leave_date": "2015-3-14",
 	"return_date": "2015-3-22"
