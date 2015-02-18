@@ -20,6 +20,8 @@ class Hamster(object):
                 hours += float(part[:-3])
             elif part.endswith('min'):
                 hours += float(part[:-3])/60.0
+            elif part.endswith('days'):
+                hours += float(part[:-4])*24
             else:
                 raise ValueError
         return hours
@@ -56,7 +58,12 @@ class Hamster(object):
 
     def get_numbeo_info(self, dest):
         mapping = {
-                'New-Orleans': ('New Orleans, LA', 'United States')
+                'New-Orleans': ('New Orleans, LA', 'United States'),
+                'Denver': ('Denver, CO', 'United States'),
+                'Miami': ('Miami, FL', 'United States'),
+                'New-York': ('New York, NY', 'United States'),
+                'Seattle': ('Seattle, WA', 'United States'),
+                'Chicago': ('Chicago, IL', 'United States'),
             }
         f = {}
         f['city'], f['country'] = mapping[dest]
